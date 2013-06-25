@@ -101,6 +101,8 @@ class MemStore(BackChannel):
 		if data.get("version", 0) == 1:
 			self.store = data.get("store")
 			self.sets = data.get("sets")
+			for k, v in self.sets.iteritems():
+				self.sets[k] = set(v)
 		else:
 			raise Exception("incompatable data file, only version 1 is supported")
 

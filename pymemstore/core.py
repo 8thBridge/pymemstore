@@ -69,7 +69,7 @@ class Feeder(object):
 		if socks.get(self.socket) == zmq.POLLIN:
 			response = self.socket.recv()
 		else:
-			response = msgpack3.packb({"error": "timeout", "message": "send timeout"})
+			response = msgpack.packb({"error": "timeout", "message": "send timeout"})
 		self.handle_response(response)
 
 	def handle_response(self, data):
