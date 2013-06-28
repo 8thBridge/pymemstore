@@ -17,6 +17,7 @@ class MemStore(BackChannel):
 		super(MemStore, self).__init__(name)
 		self.store = {}
 		self.sets = {}
+		self.handlers = {}
 
 	def table(self, name):
 		if name not in self.store.keys():
@@ -31,7 +32,9 @@ class MemStore(BackChannel):
 	def handle_request(self, data):
 		request = msgpack.loads(data)
 		op = request[0]
-		if op == "all":
+		if op in self.handlers.keys():
+			self.handlers[op](self, request)
+		elif op == "all":
 			table = request[1]
 			if table in self.store.keys():
 				self.socket.send(msgpack.dumps(self.store[table]))
@@ -45,7 +48,7 @@ class MemStore(BackChannel):
 			try:
 				fp = open(request[1], 'w')
 				with fp:
-					msgpack.pack(self._format_to_store(), fp)
+					msgpack.pack(self.format_to_store(), fp)
 				diff = datetime.utcnow() - start
 				self.socket.send(msgpack.dumps(["stored", diff.total_seconds()]))
 			except Exception as e:
@@ -55,7 +58,7 @@ class MemStore(BackChannel):
 			try:
 				fp = open(request[1], 'r')
 				with fp:
-					self._read_stored(msgpack.unpack(fp))
+					self.read_stored(msgpack.unpack(fp))
 				diff = datetime.utcnow() - start
 				self.socket.send(msgpack.dumps(["restored", diff.total_seconds()]))
 			except Exception as e:
@@ -97,7 +100,7 @@ class MemStore(BackChannel):
 		else:
 			self.socket.send(msgpack.dumps(-1))
 
-	def _read_stored(self, data):
+	def read_stored(self, data):
 		if data.get("version", 0) == 1:
 			self.store = data.get("store")
 			self.sets = data.get("sets")
@@ -106,7 +109,7 @@ class MemStore(BackChannel):
 		else:
 			raise Exception("incompatable data file, only version 1 is supported")
 
-	def _format_to_store(self):
+	def format_to_store(self):
 
 		return {
 			"version": 1,
@@ -238,3 +241,9 @@ class MemStoreClient(Feeder):
 		self.send_message(msgpack.dumps(["clear_set", set_name]))
 		return self.response
 
+	def send(self, message):
+		if not self.started:
+			self.start()
+		self.response = None
+		self.send_message(msgpack.dumps(message))
+		return self.response
