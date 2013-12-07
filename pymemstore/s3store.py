@@ -5,6 +5,8 @@ from tempfile import NamedTemporaryFile
 import msgpack
 from datetime import datetime
 
+# pylint: disable=W191
+
 
 class S3StoredMemStore(MemStore):
 
