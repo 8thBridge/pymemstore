@@ -10,6 +10,7 @@ import resource
 import msgpack
 from datetime import datetime
 
+# pylint: disable=W191
 
 class MemStore(BackChannel):
 
