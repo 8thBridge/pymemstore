@@ -1,8 +1,7 @@
+# pylint: disable=W191
 import zmq
 from multiprocessing import Process
 import msgpack
-
-# pylint: disable=W191
 
 
 class ShutdownException(Exception):

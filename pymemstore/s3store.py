@@ -1,11 +1,11 @@
+# pylint: disable=W191
+
 from pymemstore.memstore import MemStore
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from tempfile import NamedTemporaryFile
 import msgpack
 from datetime import datetime
-
-# pylint: disable=W191
 
 
 class S3StoredMemStore(MemStore):
